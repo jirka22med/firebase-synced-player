@@ -433,5 +433,11 @@ window.tracks = [
 { src: 'https://www.dropbox.com/scl/fi/ywfpdorl779fxlmsnc0ah/Stanice-Hlubok-Vesm-r-9-v.8.mp3?rlkey=429k9n0ygjthsl87mxsgg9t54&st=paxi078b&dl=1', title: 'Stanice Hluboký Vesmír 9 v.8' },
 { src: 'https://www.dropbox.com/scl/fi/496nylozhgsn9arbvocwa/V-ichni-chod-do-st-edn-koly-v.1.mp3?rlkey=gl5wpamhlxga4s5kso765humq&st=ut2jpjr4&dl=1', title: 'Všichni chodí do střední školy v.1' },
 { src: 'https://www.dropbox.com/scl/fi/wd0aoiwm1z5zbim7ycq0x/V-ichni-chod-do-st-edn-koly-v.2.mp3?rlkey=d3h81wcta3mrx3xr22ovnr7x9&st=nn6pzmih&dl=1', title: 'Všichni chodí do střední školy v.2' },
-    
+
+  { src: 'https://www.dropbox.com/scl/fi/c6o1x8tt1c14hslncyvwj/na-Oko-je-cesta-v.1.mp3?rlkey=657gb6a8ajkikafh44v5ais8h&st=r7gbf1nd&dl=1', title: 'na Okoř je cesta v.1' },
+  { src: 'https://www.dropbox.com/scl/fi/83jxjjtu7wiigyrvqr2e2/na-Oko-je-cesta-v.2.mp3?rlkey=vg0ppeifz4xxndw0akqfy9kgr&st=e6izxli9&dl=1', title: 'na Okoř je cesta v.2' },
+  { src: 'https://www.dropbox.com/scl/fi/l4htguc8qrla7rpae456c/na-Oko-je-cesta-v.3.mp3?rlkey=t2i95zahn7bs7c8kcyonuxkuk&st=e1mu3l8t&dl=1', title: 'na Okoř je cesta v.3' },
+  { src: 'https://www.dropbox.com/scl/fi/b6mfpkmdfja6nqrbnr1oq/na-Oko-je-cesta-v.4.mp3?rlkey=in5lvxhct45lqp9dzm76dg0p1&st=s4b5ug97&dl=1', title: 'na Okoř je cesta v.4' },
+  { src: 'https://www.dropbox.com/scl/fi/4x8z3ztl80v3l8md7qptf/na-Oko-je-cesta-v.5.mp3?rlkey=2o4cn1svrjxbn1fc5rzxcy96y&st=xmnlv3g4&dl=1', title: 'na Okoř je cesta v.5' },
+  { src: 'https://www.dropbox.com/scl/fi/bjbxv76hk9a6brnvwipa0/Cesta-Kry-tof.mp3?rlkey=n1qwxlrei4pgeh6id3phxbohy&st=hmd1ta0x&dl=1', title: 'Cesta Kryštof v.0' },           
     ];
