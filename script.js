@@ -27,9 +27,6 @@ const clockSeconds = document.querySelector('.time .seconds');
 const currentDateElement = document.getElementById('currentDate');
 const favoritesButton = document.createElement('button'); // Vytvoření tlačítka pro oblíbené
 
-
-
-
 // Globální proměnné pro stav přehrávače a data (inicializovány jako prázdné/výchozí, budou načteny)
 let currentTrackIndex = 0;
 let isShuffled = false;
@@ -38,21 +35,21 @@ let favorites = []; // Bude inicializováno z úložiště
 let originalTracks; // Bude inicializováno z window.tracks v loadAudioData
 let currentPlaylist = [];
 
+// *** ZMĚNA: Nové globální proměnné pro Web Audio API (integrováno přímo sem) ***
+let audioContext = null;
+let sourceNode = null;
+let mainGainNode = null; // Toto je náš zesilovač (GainNode)
+// *** KONEC ZMĚNA ***
+
 // --- Seznam skladeb (TVŮJ HLAVNÍ HARDCODED PLAYLIST) ---
-// Tuto proměnnou NEMĚNÍM. Bude sloužit jako konečný fallback, pokud se nic nenačte z Firebase/LocalStorage.
-// Předpokládáme, že `window.tracks` je definováno globálně v HTML PŘED TÍMTO skriptem.
-// Pokud není definováno globálně nebo není pole, zde se vytvoří prázdné pole, které bude použito jako ultimate fallback.
 if (typeof window.tracks === 'undefined' || !Array.isArray(window.tracks)) {
     console.warn("audioPlayer.js: Globální proměnná 'window.tracks' není definována nebo není pole. Používám prázdný playlist jako základ.");
-    // Důležité: Pokud window.tracks neexistuje, vytvoříme ho s prázdným polem
-    // aby se přehrávač nespustil prázdný při prvním načtení bez dat z cloudu.
-    window.tracks = []; // Zde je oprava: Zajistíme, že window.tracks je pole
+    window.tracks = [];
 }
 
 
 // --- Funkce showNotification ---
 window.showNotification = function(message, type = 'info', duration = 3000) {
-    // Zajišťujeme, že type je vždy string, i když je volán s nedefinovanou hodnotou
     const notificationType = typeof type === 'string' ? type.toUpperCase() : 'INFO';
     console.log(`[${notificationType}] ${message}`);
     const notificationElement = document.getElementById('notification');
@@ -93,14 +90,152 @@ function checkAndFixTracks(trackList) {
     }
 }
 
+// *** ZMĚNA: Funkce pro inicializaci Web Audio API a propojení uzlů (integrováno) ***
+function initWebAudio() {
+    if (!audioContext) {
+        console.log("BOOSTER: Inicializuji Web Audio API...");
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        audioContext.resume().then(() => {
+            console.log("BOOSTER: AudioContext resumed.");
+        }).catch(e => console.error("BOOSTER: Chyba při resume AudioContextu:", e));
+    }
+
+    // Propojíme audio graf, jakmile je audio element připraven
+    // a jen pokud už není propojen (sourceNode je null)
+    if (audioContext && !sourceNode && audioPlayer.readyState >= 3) { // HAVE_METADATA nebo vyšší
+        console.log("BOOSTER: Propojuji audio graf...");
+        sourceNode = audioContext.createMediaElementSource(audioPlayer); // Používáme audioPlayer
+        mainGainNode = audioContext.createGain();
+
+        sourceNode.connect(mainGainNode);
+        mainGainNode.connect(audioContext.destination);
+        console.log("BOOSTER: Web Audio API graf propojen.");
+        // Nastavíme hlasitost na aktuální hodnotu slideru po propojení
+        // (to se děje přes updateVolumeViaWebAudio volané z event listeneru nebo DOMContentLoaded)
+        updateVolumeViaWebAudio(parseFloat(volumeSlider.value)); // Explicitní volání zde, aby se inicializovala hlasitost
+    }
+}
+// *** KONEC ZMĚNA ***
+
+// *** ZMĚNA: Funkce pro aktualizaci hlasitosti přes Web Audio API GainNode (integrováno) ***
+function updateVolumeViaWebAudio(newVolumeValue) {
+    initWebAudio(); // Zajistí, že AudioContext je aktivní
+
+    if (mainGainNode) {
+        // POUZE mainGainNode.gain.value bude ovládat hlasitost
+        const finalVolume = logarithmicVolume(newVolumeValue);
+        
+        mainGainNode.gain.value = finalVolume;
+        console.log(`BOOSTER: Hlasitost nastavena na: ${mainGainNode.gain.value.toFixed(2)} (Slider: ${parseFloat(newVolumeValue).toFixed(2)})`);
+        updateVolumeDisplayAndIcon(); // Aktualizujeme zobrazení v UI
+    } else {
+        // Tento fallback by se NIKDY neměl spustit, pokud je Web Audio API správně inicializováno.
+        // Odstraníme direct audioPlayer.volume nastavení, protože je to zdroj chyby.
+        console.warn("BOOSTER: mainGainNode není inicializován. Hlasitost nelze nastavit přes Web Audio API. Možný problém s inicializací.");
+        // audioPlayer.volume = logarithmicVolume(newVolumeValue); // TUTO ŘÁDKU JSME ODSTRANILI, ABY SE NEHLASIL IndexSizeError
+        updateVolumeDisplayAndIcon();
+    }
+}
+// *** KONEC ZMĚNA ***
+
+// *** ZMĚNA: Funkce pro ovládání mute přes Web Audio API GainNode (integrováno) ***
+async function toggleWebAudioMute() {
+    initWebAudio(); // Zajistí inicializaci
+
+    audioPlayer.muted = !audioPlayer.muted; // Standardní HTML5 mute/unmute stav
+
+    if (mainGainNode) {
+        if (audioPlayer.muted) {
+            muteButton.dataset.previousVolume = volumeSlider.value;
+            mainGainNode.gain.value = 0; // Ztlumíme přes Web Audio API
+            volumeSlider.value = 0; // Posuneme slider na 0 pro vizuální odezvu
+        } else {
+            const prevSliderVol = parseFloat(muteButton.dataset.previousVolume || '0.3'); // Výchozí na 0.1
+            volumeSlider.value = prevSliderVol;
+            await updateVolumeViaWebAudio(prevSliderVol); // Nastavení hlasitosti přes Web Audio API
+        }
+        updateVolumeDisplayAndIcon(); // Automaticky aktualizujeme zobrazení v UI
+    } else {
+        // Tento fallback by se NIKDY neměl spustit, pokud je Web Audio API správně inicializováno.
+        console.warn("BOOSTER: mainGainNode není inicializován pro mute. Používám fallback.");
+        // audioPlayer.volume = audioPlayer.muted ? 0 : (parseFloat(volumeSlider.value) || 0.1); // TUTO ŘÁDKU JSME ODSTRANILI
+        updateVolumeDisplayAndIcon();
+    }
+    await saveAudioData(); // Uložení stavu po mute/unmute
+}
+// *** KONEC ZMĚNA ***
+
+// *** ZMĚNA: Funkce pro načtení audio souboru jako Blob a jeho přehrání/propojení (integrováno) ***
+async function loadAndPlayAudioWithBooster(trackSrc, playImmediately = true) {
+    if (!trackSrc || !audioPlayer) {
+        console.error("BOOSTER: Chybí zdroj skladby nebo audio element.");
+        return;
+    }
+
+    initWebAudio(); // Zajistíme, že AudioContext je aktivní
+
+    try {
+        console.log(`BOOSTER: Stahuji audio soubor jako Blob z: ${trackSrc}`);
+        let finalSrc = trackSrc.replace("dl=0", "dl=1");
+        // Ujistíme se, že audioPlayer má crossorigin="anonymous" v HTML pro Fetch API
+        const response = await fetch(finalSrc, { mode: 'cors' }); 
+
+        if (!response.ok) {
+            throw new Error(`Chyba HTTP: ${response.status} ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        console.log("BOOSTER: Blob URL vytvořena:", blobUrl);
+
+        // Zrušíme staré Blob URL, aby se uvolňovala paměť
+        if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) {
+            URL.revokeObjectURL(audioPlayer.src);
+        }
+
+        audioPlayer.src = blobUrl; // Nastavíme src na lokální Blob URL
+        audioPlayer.load(); // Načteme audio
+
+        // Propojíme graf po načtení metadat, pokud ještě není
+        // initWebAudio už naslouchá loadedmetadata a canplay
+        // takže setupAudioGraph se spustí z initWebAudio, pokud je potřeba.
+        // Zde jen zajistíme, že hlasitost je aktuální po načtení nové skladby.
+        // updateVolumeViaWebAudio(parseFloat(volumeSlider.value)); // TOTO NENÍ ZDE POTŘEBA
+
+        if (playImmediately) {
+            return audioPlayer.play().catch(error => {
+                console.error("BOOSTER: Chyba při přehrávání Blob URL:", error);
+                throw error;
+            });
+        }
+
+    } catch (error) {
+        console.error("BOOSTER: Chyba při stahování nebo přehrávání Blobu:", error);
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(`Chyba: ${error.message}. Soubor zřejmě nelze přehrát (CORS/stahování). Fallback na přímé přehrávání.`, 'error');
+        }
+        // Fallback na přímé přehrávání URL (bez boosteru) jako poslední možnost
+        audioPlayer.src = trackSrc.replace("dl=0", "dl=1"); // Zpět na původní URL
+        audioPlayer.load();
+        if (playImmediately) {
+            return audioPlayer.play().catch(fallbackError => {
+                console.error("BOOSTER: Fallback přehrávání selhalo:", fallbackError);
+                throw fallbackError;
+            });
+        }
+        throw error;
+    }
+}
+// *** KONEC ZMĚNA ***
+
+
 // --- Hlavní funkce pro načítání a ukládání všech dat přehrávače ---
 
 async function loadAudioData() {
     console.log("loadAudioData: Spuštěno načítání dat pro audio přehrávač.");
 
-    // Důležité: originalTracks bude nyní vždy odkazovat na window.tracks (buď z myPlaylist.js nebo prázdné pole)
     originalTracks = window.tracks;
-    currentPlaylist = [...originalTracks]; // currentPlaylist je vždy kopie pro shuffle
+    currentPlaylist = [...originalTracks];
 
     let firestorePlaylistLoaded = false;
     let firestoreFavoritesLoaded = false;
@@ -135,8 +270,14 @@ async function loadAudioData() {
             if (loadedFirestorePlayerSettings.isShuffled !== undefined) isShuffled = loadedFirestorePlayerSettings.isShuffled;
             if (loadedFirestorePlayerSettings.loop !== undefined && audioPlayer) audioPlayer.loop = loadedFirestorePlayerSettings.loop;
             if (loadedFirestorePlayerSettings.currentTrackIndex !== undefined) currentTrackIndex = loadedFirestorePlayerSettings.currentTrackIndex;
-            if (loadedFirestorePlayerSettings.volume !== undefined && audioPlayer) audioPlayer.volume = loadedFirestorePlayerSettings.volume;
-            if (loadedFirestorePlayerSettings.muted !== undefined && audioPlayer) audioPlayer.muted = loadedFirestorePlayerSettings.muted;
+            // *** ZMĚNA: Ukládáme initialVolume do datasetu audioPlayeru pro použití s novým volume systémem ***
+            if (loadedFirestorePlayerSettings.volume !== undefined) {
+                audioPlayer.dataset.initialVolume = loadedFirestorePlayerSettings.volume;
+            }
+            if (loadedFirestorePlayerSettings.muted !== undefined) {
+                audioPlayer.muted = loadedFirestorePlayerSettings.muted;
+            }
+            // *** KONEC ZMĚNA ***
 
             firestorePlayerSettingsLoaded = true;
             console.log("loadAudioData: Nastavení přehrávače načteno z Firestore.");
@@ -172,8 +313,14 @@ async function loadAudioData() {
         if (savedPlayerSettings.isShuffled !== undefined) isShuffled = savedPlayerSettings.isShuffled;
         if (savedPlayerSettings.loop !== undefined && audioPlayer) audioPlayer.loop = savedPlayerSettings.loop;
         if (savedPlayerSettings.currentTrackIndex !== undefined) currentTrackIndex = savedPlayerSettings.currentTrackIndex;
-        if (savedPlayerSettings.volume !== undefined && audioPlayer) audioPlayer.volume = savedPlayerSettings.volume;
-        if (savedPlayerSettings.muted !== undefined && audioPlayer) audioPlayer.muted = savedPlayerSettings.muted;
+        // *** ZMĚNA: Uložíme do datasetu pro použití s novým volume systémem ***
+        if (savedPlayerSettings.volume !== undefined) {
+            audioPlayer.dataset.initialVolume = savedPlayerSettings.volume;
+        }
+        if (savedPlayerSettings.muted !== undefined) {
+            audioPlayer.muted = savedPlayerSettings.muted;
+        }
+        // *** KONEC ZMĚNA ***
         console.log("loadAudioData: Nastavení přehrávače načteno z LocalStorage.");
     }
 
@@ -193,10 +340,13 @@ async function loadAudioData() {
     console.log("loadAudioData: Načítání dat pro audio přehrávač dokončeno. Aktuální playlist délka:", currentPlaylist.length, "Oblíbené:", favorites.length);
 }
 
-// Tato funkce ukládá VŠECHNA data (playlist, oblíbené, nastavení přehrávače)
+// Tato funkcija ukládá VŠECHNA data (playlist, oblíbené, nastavení přehrávače)
 // do LocalStorage a Firebase Firestore
 async function saveAudioData() {
     console.log("saveAudioData: Spuštěno ukládání všech dat audio přehrávače do LocalStorage a Firebase.");
+
+    const currentVolume = volumeSlider ? parseFloat(volumeSlider.value) : 0.5; // Získáme aktuální hodnotu
+    const isMuted = audioPlayer ? audioPlayer.muted : false; // Získáme aktuální mute stav
 
     // Ukládání do LocalStorage (pro okamžitou dostupnost a fallback)
     localStorage.setItem('currentPlaylist', JSON.stringify(window.tracks)); // Uloží window.tracks
@@ -205,8 +355,10 @@ async function saveAudioData() {
         currentTrackIndex: currentTrackIndex,
         isShuffled: isShuffled,
         loop: audioPlayer ? audioPlayer.loop : false,
-        volume: audioPlayer ? audioPlayer.volume : 0.5,
-        muted: audioPlayer ? audioPlayer.muted : false
+        // *** ZMĚNA: Ukládáme hodnoty z aktuálních prvků ***
+        volume: currentVolume,
+        muted: isMuted
+        // *** KONEC ZMĚNA ***
     }));
     console.log("saveAudioData: Data audio přehrávače úspěšně uložena do LocalStorage.");
 
@@ -225,8 +377,10 @@ async function saveAudioData() {
             currentTrackIndex: currentTrackIndex,
             isShuffled: isShuffled,
             loop: audioPlayer ? audioPlayer.loop : false,
-            volume: audioPlayer ? audioPlayer.volume : 0.5,
-            muted: audioPlayer ? audioPlayer.muted : false
+            // *** ZMĚNA: Ukládáme hodnoty z aktuálních prvků ***
+            volume: currentVolume,
+            muted: isMuted
+            // *** KONEC ZMĚNA ***
         });
         console.log("saveAudioData: Nastavení přehrávače úspěšně uložena do Firebase Firestore.");
 
