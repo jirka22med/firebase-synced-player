@@ -39,6 +39,7 @@ let currentPlaylist = [];
 let audioContext = null;
 let sourceNode = null;
 let mainGainNode = null; // Toto je náš zesilovač (GainNode)
+const MAX_VOLUME_SLIDER_VALUE = 3.0; // Maximální hodnota slideru v HTML (odpovídá max="3" v index.html)
 // *** KONEC ZMĚNA ***
 
 // --- Seznam skladeb (TVŮJ HLAVNÍ HARDCODED PLAYLIST) ---
@@ -102,7 +103,7 @@ function initWebAudio() {
 
     // Propojíme audio graf, jakmile je audio element připraven
     // a jen pokud už není propojen (sourceNode je null)
-    if (audioContext && !sourceNode && audioPlayer.readyState >= 3) { // HAVE_METADATA nebo vyšší
+    if (audioContext && !sourceNode && audioPlayer.readyState >= 1) { // HAVE_METADATA nebo vyšší
         console.log("BOOSTER: Propojuji audio graf...");
         sourceNode = audioContext.createMediaElementSource(audioPlayer); // Používáme audioPlayer
         mainGainNode = audioContext.createGain();
@@ -123,6 +124,8 @@ function updateVolumeViaWebAudio(newVolumeValue) {
 
     if (mainGainNode) {
         // POUZE mainGainNode.gain.value bude ovládat hlasitost
+        // newVolumeValue je z rozsahu 0 - MAX_VOLUME_SLIDER_VALUE (např. 3)
+        // logarithmicVolume převede tuto hodnotu na logaritmickou škálu
         const finalVolume = logarithmicVolume(newVolumeValue);
         
         mainGainNode.gain.value = finalVolume;
@@ -130,9 +133,8 @@ function updateVolumeViaWebAudio(newVolumeValue) {
         updateVolumeDisplayAndIcon(); // Aktualizujeme zobrazení v UI
     } else {
         // Tento fallback by se NIKDY neměl spustit, pokud je Web Audio API správně inicializováno.
-        // Odstraníme direct audioPlayer.volume nastavení, protože je to zdroj chyby.
+        // Odstranili jsme direct audioPlayer.volume nastavení, protože je to zdroj chyby.
         console.warn("BOOSTER: mainGainNode není inicializován. Hlasitost nelze nastavit přes Web Audio API. Možný problém s inicializací.");
-        // audioPlayer.volume = logarithmicVolume(newVolumeValue); // TUTO ŘÁDKU JSME ODSTRANILI, ABY SE NEHLASIL IndexSizeError
         updateVolumeDisplayAndIcon();
     }
 }
@@ -150,7 +152,7 @@ async function toggleWebAudioMute() {
             mainGainNode.gain.value = 0; // Ztlumíme přes Web Audio API
             volumeSlider.value = 0; // Posuneme slider na 0 pro vizuální odezvu
         } else {
-            const prevSliderVol = parseFloat(muteButton.dataset.previousVolume || '0.8'); // Výchozí na 0.1
+            const prevSliderVol = parseFloat(muteButton.dataset.previousVolume || '1.0'); // Výchozí na 1.0 (100%)
             volumeSlider.value = prevSliderVol;
             await updateVolumeViaWebAudio(prevSliderVol); // Nastavení hlasitosti přes Web Audio API
         }
@@ -158,7 +160,6 @@ async function toggleWebAudioMute() {
     } else {
         // Tento fallback by se NIKDY neměl spustit, pokud je Web Audio API správně inicializováno.
         console.warn("BOOSTER: mainGainNode není inicializován pro mute. Používám fallback.");
-         audioPlayer.volume = audioPlayer.muted ? 0 : (parseFloat(volumeSlider.value) || 0.8); // TUTO ŘÁDKU JSME ODSTRANILI
         updateVolumeDisplayAndIcon();
     }
     await saveAudioData(); // Uložení stavu po mute/unmute
@@ -198,9 +199,14 @@ async function loadAndPlayAudioWithBooster(trackSrc, playImmediately = true) {
 
         // Propojíme graf po načtení metadat, pokud ještě není
         // initWebAudio už naslouchá loadedmetadata a canplay
-        // takže setupAudioGraph se spustí z initWebAudio, pokud je potřeba.
-        // Zde jen zajistíme, že hlasitost je aktuální po načtení nové skladby.
-        // updateVolumeViaWebAudio(parseFloat(volumeSlider.value)); // TOTO NENÍ ZDE POTŘEBA
+        // takže initWebAudio (a potažmo setupAudioGraph) se spustí, pokud je potřeba.
+        if (!sourceNode) { // Přesnější kontrola, zda graf ještě není nastaven
+            audioPlayer.addEventListener('loadedmetadata', initWebAudio, { once: true });
+            audioPlayer.addEventListener('canplay', initWebAudio, { once: true });
+        } else {
+             // Pokud graf již existuje, jen zajistíme, že hlasitost je aktuální
+            updateVolumeViaWebAudio(parseFloat(volumeSlider.value));
+        }
 
         if (playImmediately) {
             return audioPlayer.play().catch(error => {
@@ -356,7 +362,7 @@ async function saveAudioData() {
         isShuffled: isShuffled,
         loop: audioPlayer ? audioPlayer.loop : false,
         // *** ZMĚNA: Ukládáme hodnoty z aktuálních prvků ***
-        volume: currentVolume,
+        volume: currentVolume, // Ukládáme hodnotu ze slideru (0-3)
         muted: isMuted
         // *** KONEC ZMĚNA ***
     }));
@@ -378,7 +384,7 @@ async function saveAudioData() {
             isShuffled: isShuffled,
             loop: audioPlayer ? audioPlayer.loop : false,
             // *** ZMĚNA: Ukládáme hodnoty z aktuálních prvků ***
-            volume: currentVolume,
+            volume: currentVolume, // Ukládáme hodnotu ze slideru (0-3)
             muted: isMuted
             // *** KONEC ZMĚNA ***
         });
@@ -472,7 +478,7 @@ function updateVolumeDisplayAndIcon() {
         muteButton.textContent = '🔇';
         volumeValueElement.textContent = '0';
     } else {
-        volumeValueElement.textContent = Math.round(sliderValue * 800);
+        volumeValueElement.textContent = Math.round(sliderValue * 100);
         if (sliderValue <= 0.01) muteButton.textContent = '🔇';
         else if (sliderValue <= 0.2) muteButton.textContent = '🔈';
         else if (sliderValue <= 0.5) muteButton.textContent = '🔉';
@@ -1129,14 +1135,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateVolumeDisplayAndIcon();
     updateButtonActiveStates(false);
 
+    // *** ZMĚNA: Používáme loadAndPlayAudioWithBooster při startu pro první skladbu ***
     if (currentPlaylist.length > 0 && audioPlayer && audioSource && trackTitleElement) {
         const firstTrack = currentPlaylist[currentTrackIndex];
-        audioSource.src = firstTrack.src;
+        // audioSource.src = firstTrack.src; // Odstraněno, handled by loadAndPlayAudioWithBooster
         trackTitleElement.textContent = firstTrack.title;
-        audioPlayer.load();
+        // audioPlayer.load(); // Odstraněno
+        // audioPlayer.play(); // Odstraněno, handled by loadAndPlayAudioWithBooster
+
+        // Zkusíme načíst a přehrát první skladbu s boosterem
+        try {
+            await loadAndPlayAudioWithBooster(firstTrack.src, false); // false = zatím nespouštět play, jen načíst
+        } catch (e) {
+            console.error("DOMContentLoaded: Chyba při načítání první skladby s boosterem:", e);
+            // Fallback na přímé nastavení src, pokud by blob načtení selhalo
+            audioSource.src = firstTrack.src;
+            audioPlayer.load();
+        }
     } else if (trackTitleElement) {
         trackTitleElement.textContent = "Playlist je prázdný";
     }
+    // *** KONEC ZMĚNA ***
+
     updateActiveTrackVisuals();
 
     if (typeof restorePreviousSettings === 'function') restorePreviousSettings();
@@ -1147,6 +1167,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     console.log("DOMContentLoaded: Hlavní inicializace audio přehrávače dokončena.");
 
+    // *** ZMĚNA: Aplikace uložené hlasitosti po načtení dat a inicializaci Web Audio API ***
+    // Toto se musí stát AŽ PO DOMContentLoaded a po inicializaci Web Audio API
+    if (audioPlayer.dataset.initialVolume) {
+        volumeSlider.value = audioPlayer.dataset.initialVolume;
+        updateVolumeViaWebAudio(parseFloat(volumeSlider.value)); // Aplikovat na gainNode
+        updateVolumeDisplayAndIcon(); // Aktualizovat zobrazení
+        delete audioPlayer.dataset.initialVolume; // Smažeme, už ji nepotřebujeme
+    }
+    // *** KONEC ZMĚNA ***
+
+
     setTimeout(() => {
         if (playlistElement) {
             playlistElement.classList.remove('hidden');
@@ -1156,6 +1187,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         console.log("DOMContentLoaded: Playlist zviditelněn po naplnění.");
     }, 100);
+
+    // *** ZDE ZAČÍNÁ KÓD PRO SKRYTÍ ZPRÁVY "Probíhá synchronizace dat..." ***
+    const errorImagePlaceholder = document.querySelector('.error-image-placeholder');
+
+    if (errorImagePlaceholder) {
+        console.log("Skrývám CELÝ KONTEJNER 'error-image-placeholder' za 4 sekundy.");
+        setTimeout(() => {
+            errorImagePlaceholder.style.display = 'none';
+        }, 6000);
+    } else {
+        console.warn("Element s třídou '.error-image-placeholder' pro skrytí nebyl nalezen.");
+    }
+    // *** KONEC KÓDU PRO SKRYTÍ ZPRÁVY ***
+
 });
 
 // --- Poznámky k původnímu kódu (není třeba měnit, jen pro kontext) ---
