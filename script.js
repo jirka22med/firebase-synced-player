@@ -150,7 +150,7 @@ async function toggleWebAudioMute() {
             mainGainNode.gain.value = 0; // Ztlumíme přes Web Audio API
             volumeSlider.value = 0; // Posuneme slider na 0 pro vizuální odezvu
         } else {
-            const prevSliderVol = parseFloat(muteButton.dataset.previousVolume || '0.3'); // Výchozí na 0.1
+            const prevSliderVol = parseFloat(muteButton.dataset.previousVolume || '0.8'); // Výchozí na 0.1
             volumeSlider.value = prevSliderVol;
             await updateVolumeViaWebAudio(prevSliderVol); // Nastavení hlasitosti přes Web Audio API
         }
@@ -158,7 +158,7 @@ async function toggleWebAudioMute() {
     } else {
         // Tento fallback by se NIKDY neměl spustit, pokud je Web Audio API správně inicializováno.
         console.warn("BOOSTER: mainGainNode není inicializován pro mute. Používám fallback.");
-        // audioPlayer.volume = audioPlayer.muted ? 0 : (parseFloat(volumeSlider.value) || 0.1); // TUTO ŘÁDKU JSME ODSTRANILI
+         audioPlayer.volume = audioPlayer.muted ? 0 : (parseFloat(volumeSlider.value) || 0.8); // TUTO ŘÁDKU JSME ODSTRANILI
         updateVolumeDisplayAndIcon();
     }
     await saveAudioData(); // Uložení stavu po mute/unmute
@@ -345,7 +345,7 @@ async function loadAudioData() {
 async function saveAudioData() {
     console.log("saveAudioData: Spuštěno ukládání všech dat audio přehrávače do LocalStorage a Firebase.");
 
-    const currentVolume = volumeSlider ? parseFloat(volumeSlider.value) : 0.5; // Získáme aktuální hodnotu
+    const currentVolume = volumeSlider ? parseFloat(volumeSlider.value) : 0.8; // Získáme aktuální hodnotu
     const isMuted = audioPlayer ? audioPlayer.muted : false; // Získáme aktuální mute stav
 
     // Ukládání do LocalStorage (pro okamžitou dostupnost a fallback)
@@ -460,7 +460,7 @@ updateClock();
 
 
 function logarithmicVolume(value) {
-    return Math.pow(parseFloat(value), 3.0);
+    return Math.pow(parseFloat(value), 8.0);
 }
 
 function updateVolumeDisplayAndIcon() {
@@ -472,7 +472,7 @@ function updateVolumeDisplayAndIcon() {
         muteButton.textContent = '🔇';
         volumeValueElement.textContent = '0';
     } else {
-        volumeValueElement.textContent = Math.round(sliderValue * 100);
+        volumeValueElement.textContent = Math.round(sliderValue * 800);
         if (sliderValue <= 0.01) muteButton.textContent = '🔇';
         else if (sliderValue <= 0.2) muteButton.textContent = '🔈';
         else if (sliderValue <= 0.5) muteButton.textContent = '🔉';
