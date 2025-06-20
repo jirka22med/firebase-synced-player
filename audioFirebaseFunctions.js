@@ -240,13 +240,4 @@ window.clearAllAudioFirestoreData = async function() {
         throw error;
     }
 };
-
-// tady je funkce pro reset a znovu načtení? 
-
-// --- FUNKCE PRO RESET A RESYNCHRONIZACI VŠECH ALGORITMŮ ---
-
-
-// --- FUNKCE PRO SMAZÁNÍ DAT Z FIRESTORE (POZOR! DŮRAZNĚ!) ---
-
-// Funkce pro smazání všech dat ze všech kolekcí audio přehrávače
-window.clearAllAudioFirestoreData = async function() {
+ 
