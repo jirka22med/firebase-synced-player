@@ -1145,3 +1145,63 @@ function initStorageSystem() {
         console.warn("Element s třídou '.error-image-placeholder' pro skrytí nebyl nalezen.");
     }
     // *** KONEC KÓDU PRO SKRYTÍ ZPRÁVY ***
+
+ // JavaScript funkce pro obsluhu reset tlačítka
+        async function handleResetSync() {
+            const button = document.getElementById('resetSyncButton');
+            const resetIcon = button.querySelector('.reset-icon');
+            const resetText = button.querySelector('.reset-text');
+            
+            // Deaktivujeme tlačítko a spustíme animaci
+            button.disabled = true;
+            button.classList.add('loading');
+            resetText.textContent = 'Načítám...';
+            
+            try {
+                // Zavoláme naši reset funkci z audioFirebaseFunctions.js
+                if (typeof window.resetAndResyncAllAlgorithms === 'function') {
+                    await window.resetAndResyncAllAlgorithms();
+                    
+                    // Úspěch - dočasně změníme text
+                    resetText.textContent = 'Hotovo!';
+                    resetIcon.textContent = '✅';
+                    
+                    // Po 2 sekundách obnovíme původní stav
+                    setTimeout(() => {
+                        resetText.textContent = 'Znovu načíst vše';
+                        resetIcon.textContent = '🔄';
+                        button.disabled = false;
+                        button.classList.remove('loading');
+                    }, 2000);
+                    
+                } else {
+                    throw new Error('Funkce resetAndResyncAllAlgorithms není dostupná');
+                }
+                
+            } catch (error) {
+                console.error('Chyba při resetu:', error);
+                
+                // Chyba - zobrazíme chybový stav
+                resetText.textContent = 'Chyba!';
+                resetIcon.textContent = '❌';
+                
+                // Po 3 sekundách obnovíme původní stav
+                setTimeout(() => {
+                    resetText.textContent = 'Znovu načíst vše';
+                    resetIcon.textContent = '🔄';
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                }, 3000);
+            }
+        }
+        
+        // Demo funkce pro testování (pokud není Firebase dostupný)
+        if (typeof window.resetAndResyncAllAlgorithms === 'undefined') {
+            window.resetAndResyncAllAlgorithms = async function() {
+                console.log('DEMO: Reset a resynchronizace by se spustila...');
+                // Simulujeme delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                alert('DEMO: Reset dokončen! (Toto je jen demo verze)');
+                return true;
+            };
+        }
