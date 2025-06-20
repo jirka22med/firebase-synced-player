@@ -55,8 +55,12 @@
           <button id="toggle-playlist-button" title="Zobrazit/Skrýt playlist">📜</button> 
           <button id="timer-button" title="Časovač vypnutí (T)">⏰</button>
           <button onclick="window.clearAllAudioPlayerData()">🗑️❌🔄</button> 
+          <button id="resetSyncButton" class="reset-sync-button" onclick="handleResetSync()">
+            <span class="reset-icon">🔄</span>
+            <span class="reset-text">Znovu načíst vše</span>
+        </button>
         </div>
-        
+       
           
         <div class="volume-controls">
           <button id="mute-button" title="Ztlumit (M)">🔊</button>
