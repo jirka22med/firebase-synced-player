@@ -91,8 +91,10 @@
         // Inicializace vzhledu
         updateButtonText();
         
-        // Uložíme referenci pro programové ovládání
-        window.perfMon.button = button;
+        // Uložíme referenci pro programové ovládání (až po vytvoření perfMon)
+        if (window.perfMon) {
+            window.perfMon.button = button;
+        }
     }
     
     // Proměnné pro stop/start
@@ -118,9 +120,9 @@
     // Inicializace
     // Použije existující tlačítko z HTML
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeButton);
+        document.addEventListener('DOMContentLoaded', initButtonAfterSetup);
     } else {
-        initializeButton();
+        initButtonAfterSetup();
     }
     
     // Výpis při zavření stránky (pokud je zapnut)
@@ -142,8 +144,21 @@
                 stopMonitoring();
             }
         },
-        config: config
+        config: config,
+        button: null  // Bude nastaveno při inicializaci tlačítka
     };
+    
+    // Inicializace tlačítka po vytvoření perfMon
+    function initButtonAfterSetup() {
+        initializeButton();
+        // Teď už můžeme bezpečně nastavit referenci
+        const button = document.getElementById('perf-monitor-btn') || 
+                      document.querySelector('.perf-monitor-btn') ||
+                      document.querySelector('[data-perf-monitor]');
+        if (button) {
+            window.perfMon.button = button;
+        }
+    }
     
 })();
 
@@ -166,10 +181,10 @@
 // Tlačítko může být umístěno kdekoliv v HTML struktuře!
 
 // Manuální volání:
-// perfMon.log()        - okamžitý výpis
-// perfMon.get()        - vrátí data jako objekt
-// perfMon.toggle()     - zapne/vypne monitoring
-// perfMon.config.logInterval = 3000  - změní interval
+  perfMon.log()       // - okamžitý výpis
+  perfMon.get()        //- vrátí data jako objekt
+  perfMon.toggle()     //- zapne/vypne monitoring
+  perfMon.config.logInterval = 5000  //- změní interval
 
 // --- Ukázkový výstup v konzoli ---
 // ⚡ 🟢 1250ms | 2.3MB | 60fps
@@ -177,7 +192,7 @@
 // ⚡ 🔴 12340ms | 67.8MB | 30fps
 
 // --- Rozšířená verze s více detaily (volitelná) ---
-
+ 
 function advancedLog() {
     const perf = performance.getEntriesByType('navigation')[0];
     const paint = performance.getEntriesByType('paint');
@@ -193,3 +208,4 @@ function advancedLog() {
 
 // Přidat do window.perfMon
 window.perfMon.advanced = advancedLog;
+ 
