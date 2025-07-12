@@ -68,7 +68,7 @@
                 button.style.color = 'white';
             } else {
                 button.textContent = originalText.includes('Monitor') ? originalText : '📊';
-                button.style.background = '';
+                button.style.background = 'green';
                 button.style.color = '';
             }
         }
@@ -183,8 +183,8 @@
 // Manuální volání:
   perfMon.log()       // - okamžitý výpis
   perfMon.get()        //- vrátí data jako objekt
-  perfMon.toggle()     //- zapne/vypne monitoring
-  perfMon.config.logInterval = 5000  //- změní interval
+//  perfMon.toggle()     //- zapne/vypne monitoring
+  perfMon.config.logInterval = 3000  //- změní interval
 
 // --- Ukázkový výstup v konzoli ---
 // ⚡ 🟢 1250ms | 2.3MB | 60fps
