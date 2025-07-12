@@ -1,141 +1,176 @@
-// --- Univerzální Performance Monitor ---
+// --- Univerzální Performance Monitor - KOMPLETNĚ PŘEPRACOVÁNO ---
 // Jednoduše přidejte tento kód na začátek jakéhokoli scriptu
 
 (function() {
     'use strict';
     
     // Globální proměnné pro monitoring
-    let startTime = performance.now();
-    let memoryStart = performance.memory ? performance.memory.usedJSHeapSize : 0;
     let frameCount = 0;
-    let lastFrameTime = startTime;
+    let lastLogTime = performance.now();
+    let lastIntervalFrameCount = 0;
+    let memoryStart = performance.memory ? performance.memory.usedJSHeapSize : 0;
     
-    // Minimalistická konfigurace
+    // Konfigurace
     const config = {
         logInterval: 5000,    // Výpis každých 5 sekund
         enabled: false,       // Vypnuto při startu
         prefix: '⚡'          // Prefix pro logy
     };
     
-    // Detekce výkonu stránky
+    // Hlavní funkce pro měření výkonu
     function getPagePerformance() {
         const now = performance.now();
         const memoryNow = performance.memory ? performance.memory.usedJSHeapSize : 0;
         
+        // Aktuální paměť v MB
+        const currentMemory = Math.round(memoryNow / 1024 / 1024 * 100) / 100;
+        
+        // FPS za posledních 5 sekund
+        const framesSinceLastLog = frameCount - lastIntervalFrameCount;
+        const secondsSinceLastLog = (now - lastLogTime) / 1000;
+        const currentFPS = secondsSinceLastLog > 0 ? Math.round(framesSinceLastLog / secondsSinceLastLog) : 0;
+        
+        // Odezva snímku = 1000ms / FPS
+        const frameLatency = currentFPS > 0 ? Math.round(1000 / currentFPS) : 999;
+        
+        // Reset pro další měření
+        lastLogTime = now;
+        lastIntervalFrameCount = frameCount;
+        
         return {
-            runtime: Math.round(now - startTime),
-            memory: Math.round((memoryNow - memoryStart) / 1024 / 1024 * 100) / 100,
-            fps: Math.round(frameCount / ((now - startTime) / 1000))
+            latency: frameLatency,    // Odezva na snímek v ms
+            memory: currentMemory,    // Aktuální paměť v MB
+            fps: currentFPS          // FPS za posledních 5 sekund
         };
     }
     
-    // Minimalistický výpis
+    // Výpis do konzole
     function logPerformance() {
         if (!config.enabled) return;
         
         const perf = getPagePerformance();
-        const status = perf.memory > 50 ? '🔴' : perf.memory > 20 ? '🟡' : '🟢';
         
-        console.log(`${config.prefix} ${status} ${perf.runtime}ms | ${perf.memory}MB | ${perf.fps}fps`);
+        // Status podle paměti
+        const memoryStatus = perf.memory > 100 ? '🔴' : perf.memory > 50 ? '🟡' : '🟢';
+        
+        // Status podle odezvy (latence)
+        let latencyIcon;
+        if (perf.latency > 50) {        // Pod 20 FPS
+            latencyIcon = '🐌';
+        } else if (perf.latency > 33) { // 20-30 FPS
+            latencyIcon = '🟡';
+        } else if (perf.latency > 16) { // 30-60 FPS
+            latencyIcon = '🟢';
+        } else {                        // 60+ FPS
+            latencyIcon = '⚡';
+        }
+        
+        console.log(`${config.prefix} ${memoryStatus} ${perf.latency}ms | ${perf.memory}MB | ${perf.fps}fps ${latencyIcon}`);
     }
     
-    // Frame counter pro FPS
+    // Počítání snímků
     function countFrame() {
         frameCount++;
-        requestAnimationFrame(countFrame);
+        if (config.enabled) {
+            requestAnimationFrame(countFrame);
+        }
     }
     
-    // Inicializace existujícího tlačítka z HTML
+    // Inicializace tlačítka
     function initializeButton() {
-        // Hledáme tlačítko v HTML podle ID nebo class
         const button = document.getElementById('perf-monitor-btn') || 
                       document.querySelector('.perf-monitor-btn') ||
                       document.querySelector('[data-perf-monitor]');
         
         if (!button) {
-            console.warn('⚠️ Tlačítko pro monitoring nenalezeno. Použijte ID "perf-monitor-btn" nebo class "perf-monitor-btn"');
+            console.warn('⚠️ Tlačítko pro monitoring nenalezeno. Použijte ID "perf-monitor-btn"');
             return;
         }
         
-        // Aktualizace textu tlačítka
         function updateButtonText() {
             const originalText = button.dataset.originalText || button.textContent;
             button.dataset.originalText = originalText;
             
             if (config.enabled) {
-                button.textContent = '⏹️';
+                button.textContent = '⏹️ Stop';
                 button.style.background = '#e74c3c';
                 button.style.color = 'white';
             } else {
-                button.textContent = originalText.includes('Monitor') ? originalText : '📊';
-                button.style.background = 'green';
-                button.style.color = '';
+                button.textContent = '▶️ Start';
+                button.style.background = '#27ae60';
+                button.style.color = 'white';
             }
         }
         
-        // Click handler
         button.onclick = (e) => {
             e.preventDefault();
             config.enabled = !config.enabled;
             updateButtonText();
             
             if (config.enabled) {
-                console.log(`${config.prefix} ▶️`);
+                console.log(`${config.prefix} ▶️ Monitor spuštěn`);
                 startMonitoring();
             } else {
-                console.log(`${config.prefix} ⏹️`);
+                console.log(`${config.prefix} ⏹️ Monitor zastaven`);
                 stopMonitoring();
             }
         };
         
-        // Inicializace vzhledu
         updateButtonText();
-        
-        // Uložíme referenci pro programové ovládání (až po vytvoření perfMon)
+       // Uložíme referenci pro programové ovládání (až po vytvoření perfMon)
         if (window.perfMon) {
             window.perfMon.button = button;
         }
     }
     
-    // Proměnné pro stop/start
+    // Proměnné pro interval
     let monitoringInterval;
-    let isFrameCounterRunning = false;
     
-    // Spustí monitoring
+    // Spuštění monitoringu
     function startMonitoring() {
-        if (!isFrameCounterRunning) {
-            requestAnimationFrame(countFrame);
-            isFrameCounterRunning = true;
-        }
+        // Reset měření
+        lastLogTime = performance.now();
+        lastIntervalFrameCount = frameCount;
         
+        // Spustit počítání snímků
+        requestAnimationFrame(countFrame);
+        
+        // Spustit interval logování
         monitoringInterval = setInterval(logPerformance, config.logInterval);
+        
+        // První log hned
+        setTimeout(logPerformance, 100);
     }
     
-    // Zastaví monitoring
+    // Zastavení monitoringu
     function stopMonitoring() {
         clearInterval(monitoringInterval);
-        isFrameCounterRunning = false;
     }
     
-    // Inicializace
-    // Použije existující tlačítko z HTML
+    // Inicializace po načtení
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initButtonAfterSetup);
+        document.addEventListener('DOMContentLoaded', initializeButton);
     } else {
-        initButtonAfterSetup();
+        initializeButton();
     }
     
-    // Výpis při zavření stránky (pokud je zapnut)
+    // Finální stats při zavření
     window.addEventListener('beforeunload', function() {
         if (config.enabled) {
-            console.log(`${config.prefix} 📊 Finální stats:`, getPagePerformance());
+            console.log(`${config.prefix} 📊 Finální měření:`, getPagePerformance());
         }
-    }, { passive: true });
+    });
     
-    // Globální API pro ruční kontrolu
+    // Globální API
     window.perfMon = {
-        log: logPerformance,
-        get: getPagePerformance,
+        start: () => {
+            config.enabled = true;
+            startMonitoring();
+        },
+        stop: () => {
+            config.enabled = false;
+            stopMonitoring();
+        },
         toggle: () => {
             config.enabled = !config.enabled;
             if (config.enabled) {
@@ -144,68 +179,30 @@
                 stopMonitoring();
             }
         },
+        get: getPagePerformance,
+        log: logPerformance,
         config: config,
-        button: null  // Bude nastaveno při inicializaci tlačítka
+        button: null
     };
-    
-    // Inicializace tlačítka po vytvoření perfMon
-    function initButtonAfterSetup() {
-        initializeButton();
-        // Teď už můžeme bezpečně nastavit referenci
-        const button = document.getElementById('perf-monitor-btn') || 
-                      document.querySelector('.perf-monitor-btn') ||
-                      document.querySelector('[data-perf-monitor]');
-        if (button) {
-            window.perfMon.button = button;
-        }
-    }
     
 })();
 
-// --- Jak použít vlastní tlačítko v HTML ---
+// --- Jak použít ---
+// 1. Přidej tlačítko do HTML:
+//    <button id="perf-monitor-btn">Monitor</button>
+//
+// 2. Nebo použij z konzole:
+//    perfMon.start()  // Spustí
+//    perfMon.stop()   // Zastaví
+//    perfMon.get()    // Vrátí aktuální data
+//    perfMon.log()    // Jednorazový výpis
 
-// Možnost 1: Použít ID
-// <button id="perf-monitor-btn">Monitor výkonu</button>
+// --- Ukázkový výstup ---
+// ⚡ 🟢 16ms | 15.2MB | 60fps ⚡  (60 FPS = vynikající)
+// ⚡ 🟢 20ms | 18.1MB | 50fps 🟢  (50 FPS = dobré)
+// ⚡ 🟡 33ms | 25.1MB | 30fps 🟡  (30 FPS = průměrné)
+// ⚡ 🔴 100ms | 67.8MB | 10fps 🐌  (10 FPS = pomalé)
 
-// Možnost 2: Použít CSS class
-// <button class="perf-monitor-btn">Sledovat výkon</button>
-
-// Možnost 3: Použít data atribut
-// <button data-perf-monitor>🔍 Performance</button>
-
-// Možnost 4: Jakýkoli z těchto prvků
-// <a href="#" class="perf-monitor-btn">Monitor</a>
-// <div id="perf-monitor-btn" role="button">📊 Stats</div>
-// <span data-perf-monitor style="cursor: pointer;">⚡ Test</span>
-
-// Tlačítko může být umístěno kdekoliv v HTML struktuře!
-
-// Manuální volání:
-  perfMon.log()       // - okamžitý výpis
-  perfMon.get()        //- vrátí data jako objekt
-//  perfMon.toggle()     //- zapne/vypne monitoring
-  perfMon.config.logInterval = 3000  //- změní interval
-
-// --- Ukázkový výstup v konzoli ---
-// ⚡ 🟢 1250ms | 2.3MB | 60fps
-// ⚡ 🟡 6780ms | 25.1MB | 45fps
-// ⚡ 🔴 12340ms | 67.8MB | 30fps
-
-// --- Rozšířená verze s více detaily (volitelná) ---
- 
-function advancedLog() {
-    const perf = performance.getEntriesByType('navigation')[0];
-    const paint = performance.getEntriesByType('paint');
-    
-    console.group('🔍 Detailní výkon');
-    console.log('DOM:', Math.round(perf.domContentLoadedEventEnd - perf.domContentLoadedEventStart) + 'ms');
-    console.log('Load:', Math.round(perf.loadEventEnd - perf.loadEventStart) + 'ms');
-    if (paint.length > 0) {
-        console.log('Paint:', Math.round(paint[0].startTime) + 'ms');
-    }
-    console.groupEnd();
-}
-
-// Přidat do window.perfMon
-window.perfMon.advanced = advancedLog;
- 
+// --- Vysvětlení ikon ---
+// Paměť: 🟢 (pod 50MB) | 🟡 (50-100MB) | 🔴 (nad 100MB)
+// Odezva: ⚡ (16ms/60fps) | 🟢 (33ms/30fps) | 🟡 (50ms/20fps) | 🐌 (nad 50ms)
