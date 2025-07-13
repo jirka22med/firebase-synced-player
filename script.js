@@ -3118,7 +3118,7 @@ function countdown() {
 
 
 
-        const alertSound = new Audio('https://www.trekcore.com/audio/computer/tng_computer_start_beep.mp3');
+        const alertSound = new Audio('https://www.dropbox.com/scl/fi/l1oliluc949s1sviouuo0/odpocet-10-sekund.mp3?rlkey=yp6fc9llz7em9a7p4bjtsq6aw&st=5z2v667o&dl=1');
 
 
 
