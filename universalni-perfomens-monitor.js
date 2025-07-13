@@ -92,11 +92,11 @@
             button.dataset.originalText = originalText;
             
             if (config.enabled) {
-                button.textContent = '⏹️ Stop';
+                button.textContent = '⏹️';
                 button.style.background = '#e74c3c';
                 button.style.color = 'white';
             } else {
-                button.textContent = '▶️ Start';
+                button.textContent = '▶️';
                 button.style.background = '#27ae60';
                 button.style.color = 'white';
             }
