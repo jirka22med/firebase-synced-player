@@ -3682,7 +3682,7 @@ document.addEventListener('click', (e) => {
 
 
 
-        console.log("Favorites menu closed by outside click.");
+        //console.log("Favorites menu closed by outside click.");
 
 
 
