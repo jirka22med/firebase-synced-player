@@ -531,7 +531,105 @@
                     originalConsole.log('✅ Log vyčištěn!');
                 }
             });
+// Přidej tuhle část do setupModal() funkce, za ostatní event listenery:
 
+// Filtr funkcionalita
+let currentFilter = 'all'; // 'all', 'special', 'errors', 'init'
+
+filterBtn?.addEventListener('click', () => {
+    // Cycle through filter options
+    const filters = ['all', 'special', 'errors', 'init'];
+    const currentIndex = filters.indexOf(currentFilter);
+    const nextIndex = (currentIndex + 1) % filters.length;
+    currentFilter = filters[nextIndex];
+    
+    // Update button text to show current filter
+    const filterLabels = {
+        'all': '🔍 Vše',
+        'special': '⭐ Speciální',
+        'errors': '❌ Chyby',
+        'init': '🚀 Init'
+    };
+    
+    filterBtn.textContent = filterLabels[currentFilter];
+    
+    // Apply filter
+    updateLogDisplay();
+    
+    originalConsole.log(`🔍 Filtr změněn na: ${currentFilter}`);
+});
+
+// Modify updateLogDisplay function to respect filter:
+window.updateLogDisplay = function() {
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    // Filter logic
+    const filteredEntries = logEntries.filter(entry => {
+        switch(currentFilter) {
+            case 'special':
+                return entry.isSpecial;
+            case 'errors':
+                return entry.type === 'ERROR' || entry.type === 'WARN';
+            case 'init':
+                return entry.type === 'INIT_VAR';
+            case 'all':
+            default:
+                return true;
+        }
+    });
+    
+    filteredEntries.forEach((entry, index) => {
+        const row = tableBody.insertRow();
+        row.title = entry.message;
+        
+        if (entry.isSpecial) {
+            row.classList.add('special-log-row');
+        }
+
+        // Čas
+        const timeCell = row.insertCell();
+        timeCell.textContent = entry.timestamp.toLocaleString('cs-CZ', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        // Typ
+        const typeCell = row.insertCell();
+        typeCell.classList.add(`log-type-${entry.type.toLowerCase()}-text`);
+        typeCell.textContent = entry.type;
+
+        // Zpráva
+        const messageCell = row.insertCell();
+        messageCell.textContent = entry.message;
+
+        // Akce
+        const actionCell = row.insertCell();
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = '📋';
+        copyBtn.classList.add('jirik-copy-log-btn');
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(entry.message).then(() => {
+                originalConsole.info('✅ Zpráva zkopírována!');
+            });
+        };
+        actionCell.appendChild(copyBtn);
+    });
+    
+    if (logCount) {
+        const total = logEntries.length;
+        const filtered = filteredEntries.length;
+        logCount.textContent = `Záznamy: ${filtered}/${total}`;
+    }
+    
+    // Auto-scroll
+    const container = document.querySelector('.jirik-log-table-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+};
             exportBtn?.addEventListener('click', () => {
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 const filename = `console-log-${timestamp}.html`;
@@ -607,9 +705,9 @@
 
         // Funkce pro vytvoření tlačítka
         const setupOpenButton = () => {
-            const controlpanel = document.querySelector('.controls .control-panel');
+            const dataManagementContainer = document.querySelector('.function-setupDataManagement .data-management-container');
             
-            if (controlpanel) {
+            if (dataManagementContainer) {
                 let openBtn = document.getElementById('jirik-open-modal-btn');
                 
                 if (!openBtn) {
