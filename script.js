@@ -4254,43 +4254,30 @@ function initStorageSystem() {
 
         
 
-  // *** ZDE ZAČÍNÁ KÓD PRO SKRYTÍ ZPRÁVY "Probíhá synchronizace dat..." ***
+ // *** ZDE ZAČÍNÁ KÓD PRO SKRYTÍ ZPRÁVY "Probíhá synchronizace dat..." ***
 
+// Funkce pro skrytí kontejneru se zprávou o načítání/synchronizaci
+function hideLoadingMessage() {
+    // Získáme referenci na CELÝ KONTEJNER podle tvé HTML struktury
+    const loadingPlaceholder = document.querySelector('.loading-image-placeholder');
 
+    if (loadingPlaceholder) { // Kontrolujeme, zda kontejner existuje
+        console.log("Skrývám CELÝ KONTEJNER 'loading-image-placeholder' za 6 sekund.");
+        setTimeout(() => {
+            loadingPlaceholder.style.display = 'none'; // Skryje celý div
+            // Můžeš zkusit i plynulejší efekt:
+            // loadingPlaceholder.style.opacity = '0'; // Zprůhlední ho
+            // setTimeout(() => { loadingPlaceholder.style.display = 'none'; }, 500); // Pak ho úplně skryje po animaci opacity
+        }, 6000); // 6000 milisekund = 6 sekund (použil jsem tvůj čas z původního kódu)
+    } else {
+        console.warn("Element s třídou '.loading-image-placeholder' pro skrytí nebyl nalezen. Zkontroluj HTML strukturu.");
+    }
+}
 
-    // Původní: const loadingMessageElement = document.querySelector('.loading-message');
-
-    // Změna: Teď získáme referenci na CELÝ KONTEJNER
-
-    const errorImagePlaceholder = document.querySelector('.error-image-placeholder');
-
-
-
-    if (errorImagePlaceholder) { // Kontrolujeme, zda existuje rodičovský kontejner
-
-        console.log("Skrývám CELÝ KONTEJNER 'error-image-placeholder' za 4 sekundy.");
-
-        setTimeout(() => {
-
-            errorImagePlaceholder.style.display = 'none'; // Skryje celý div
-
-            // Můžeš zkusit i plynulejší efekt:
-
-            // errorImagePlaceholder.style.opacity = '0'; // Zprůhlední ho
-
-            // setTimeout(() => { errorImagePlaceholder.style.display = 'none'; }, 500); // Pak ho úplně skryje po animaci opacity
-
-
-
-        }, 6000); // 4000 milisekund = 4 sekundy
-
-    } else {
-
-        console.warn("Element s třídou '.error-image-placeholder' pro skrytí nebyl nalezen.");
-
-    }
-
-
+// A nezapomeň tuto funkci zavolat tam, kde potřebuješ, aby se zpráva skryla,
+// například po načtení všech dat.
+// Příklad volání (jen pro ukázku, vložíš tam, kam se ti to hodí):
+// hideLoadingMessage();
 
     // *** KONEC KÓDU PRO SKRYTÍ ZPRÁVY ***
 
