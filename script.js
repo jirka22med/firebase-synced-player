@@ -4256,48 +4256,17 @@ function initStorageSystem() {
 
 // *** ZDE ZAČÍNÁ KÓD PRO SKRYTÍ ZPRÁVY "Probíhá synchronizace dat..." ***
 
-// Funkce pro skrytí kontejneru se zprávou o načítání/synchronizaci
-function hideLoadingMessage() {
-    // Získáme referenci na CELÝ KONTEJNER podle tvé HTML struktury
-    const loadingPlaceholder = document.querySelector('.loading-image-placeholder');
+// Získáme referenci na CELÝ KONTEJNER pro zprávu o synchronizaci
+const syncStatusContainer = document.querySelector('.sync-status-container');
 
-    if (loadingPlaceholder) { // Kontrolujeme, zda kontejner existuje
-        console.log("Nalezen element '.loading-image-placeholder'. Skrývám ho za 6 sekund.");
-        setTimeout(() => {
-            loadingPlaceholder.style.display = 'none'; // Skryje celý div
-            // Případně pro plynulejší efekt:
-            // loadingPlaceholder.style.opacity = '0';
-            // setTimeout(() => { loadingPlaceholder.style.display = 'none'; }, 500);
-            console.log("Element '.loading-image-placeholder' by měl být skryt.");
-        }, 6000); // 6000 milisekund = 6 sekund
-    } else {
-        // Velmi důležitá zpráva pro ladění: Pokud se toto zobrazí, element nebyl nalezen!
-        console.warn("Chyba: Element s třídou '.loading-image-placeholder' pro skrytí NEBYL nalezen.");
-        console.warn("Zkontroluj, zda je HTML element správně definován a zda je skript načítán PO HTML elementu.");
-    }
+if (syncStatusContainer) { // Kontrolujeme, zda kontejner existuje
+    console.log("Skrývám CELÝ KONTEJNER 'sync-status-container' za 6 sekund.");
+    setTimeout(() => {
+        syncStatusContainer.style.display = 'none'; // Skryje celý div
+        // Nebo pro plynulejší efekt:
+        // syncStatusContainer.style.opacity = '0'; // Zprůhlední ho
+        // setTimeout(() => { syncStatusContainer.style.display = 'none'; }, 500); // Pak ho úplně skryje po animaci opacity
+    }, 6000); // 6000 milisekund = 6 sekund (podle tvého původního kódu)
+} else {
+    console.warn("Element s třídou '.sync-status-container' pro skrytí nebyl nalezen. Zkontroluj HTML strukturu.");
 }
-
-// *** Kdy volat tuto funkci? TO JE KLÍČOVÉ! ***
-
-// A) Nejlepší praxe: Volat funkci po načtení celého DOMu.
-// To zajistí, že element .loading-image-placeholder už existuje.
-document.addEventListener('DOMContentLoaded', (event) => {
-    console.log("DOM plně načten. Volám hideLoadingMessage().");
-    hideLoadingMessage();
-});
-
-// B) Alternativní možnost (pokud tvůj skript je na konci <body>):
-// Pokud máš svůj JavaScript soubor nebo skript přímo na konci značky <body>,
-// pak by teoreticky stačilo zavolat funkci přímo, protože HTML už bude načtené.
-// hideLoadingMessage(); // Odkomentuj, pokud je skript na konci <body>
-
-// A nezapomeň tuto funkci zavolat tam, kde potřebuješ, aby se zpráva skryla,
-// například po načtení všech dat.
-// Příklad volání (jen pro ukázku, vložíš tam, kam se ti to hodí):
-// hideLoadingMessage();
-
-    // *** KONEC KÓDU PRO SKRYTÍ ZPRÁVY ***
-
-
-
-// ... zbytek tvého kódu uvnitř DOMContentLoaded ...
