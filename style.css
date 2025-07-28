@@ -1,59 +1,63 @@
-/* ŘÁDEK 9 ZAČÁTEK NA ŘÁDKU 11 :root */
-/* Modernější proměnné a základní nastavení */
+/* Modernizované proměnné a základní nastavení */
 :root {
     --spacing-unit: 16px;
-    --primary-color: #2196F3; /* Modrá pro akcenty */
-    --secondary-color: #00ff80; /* Zelená pro další akcenty */
-    --accent-color: #ff2d55; /* Výrazná červená/růžová */
-    --background-dark: #0a0a0a;
-    --background-light: #1a1a1a; /* Pro prvky jako playlist */
-    --text-primary: #ffffff;
-    --text-secondary: #b3b3b3; /* Pro méně důležitý text */
-    --spacing-sm: 8px;  /* Upraveno pro konzistenci */
+    --primary-color: #00B7EB; /* Jasnější modrá pro Star Trek estetiku */
+    --secondary-color: #39FF14; /* Neonově zelená pro akcenty */
+    --accent-color: #FF073A; /* Výrazná červená pro důležité prvky */
+    --background-dark: #0D1B2A; /* Tmavší modročerné pozadí */
+    --background-light: #1B263B; /* Světlejší pozadí pro playlist a kontejnery */
+    --text-primary: #E0E1DD; /* Světlý text pro čitelnost */
+    --text-secondary: #778DA9; /* Sekundární text pro méně důležité prvky */
+    --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --font-main: 'Orbitron', 'Segoe UI', system-ui, sans-serif; /* Orbitron jako hlavní */
-    --font-text: 'Arial', sans-serif; /* Arial pro delší texty, pokud by byl potřeba */
-    --scroll-glow: rgba(0, 212, 255, 0.5);
-    --scroll-brightness: 1;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --font-main: 'Orbitron', 'Segoe UI', system-ui, sans-serif; /* Orbitron pro sci-fi styl */
+    --font-text: 'Roboto', sans-serif; /* Moderní font pro delší texty */
+    --glow-effect: 0 0 8px rgba(0, 183, 235, 0.5);
+    --scroll-glow: rgba(57, 255, 20, 0.6);
+    --scroll-brightness: 1.2;
 }
 
+/* Základní nastavení těla stránky */
 body, html {
     margin: 0;
     padding: 0;
-    height: 100vh; /* Pevná výška bez změn */
-    width: 100vw; /* Pevná šířka bez změn */
-    /*overflow: hidden;   Zabrání posouvání hlavní stránky */
+    height: 100vh;
+    width: 100vw;
     background-color: var(--background-dark);
     color: var(--text-primary);
     font-family: var(--font-main);
     text-align: center;
-    font-weight: bold; /* Výchozí tučnost pro Orbitron */
+    font-weight: 500;
     overscroll-behavior: none;
     box-sizing: border-box;
-    position: fixed; /* Pevné umístění - zabrání jakémukoliv posunu */
+    position: fixed;
     top: 0;
     left: 0;
+    overflow: hidden;
 }
 
-.background-image-container { /* Přejmenováno pro srozumitelnost */
-    position: fixed; /* Fixed, aby zůstal na místě při skrolování (i když je overflow hidden) */
+/* Pozadí s obrázkem */
+.background-image-container {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; 
+    z-index: -1;
 }
 .background-image-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.7; /* Mírné ztmavení obrázku pro lepší kontrast textu */
+    opacity: 0.6;
+    filter: blur(2px);
 }
 
-.player-content-wrapper { /* Nový wrapper pro obsah přehrávače */
-    position: fixed; /* Pevné umístění pro stabilitu */
+/* Hlavní wrapper přehrávače */
+.player-content-wrapper {
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -62,676 +66,821 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Změněno z center na flex-start */
-    padding: var(--spacing-unit);
-    overflow-y: auto; /* Povolí skrolování obsahu přehrávače, pokud přesáhne výšku */
-    overflow-x: hidden; /* Zabrání horizontálnímu skrolování */
+    justify-content: flex-start;
+    padding: var(--spacing-md);
+    overflow-y: auto;
+    overflow-x: hidden;
     box-sizing: border-box;
 }
 
+/* Nadpis a název skladby */
 .header-title, #trackTitle {
-   font-family: Copperplate, 'Copperplate Gothic Light';    
-   font-size: 2.7rem;
-   font-weight: bold;
-   background: linear-gradient(45deg, #4caf50, #f44336, #2196f3, #ff9800);
-   background-size: 400% 400%;
-   -webkit-background-clip: text;
-   color: transparent;
-   animation: gradientAnimation 30s ease infinite;
-   margin-bottom: 40px;
-   margin-top: 20px; /* Pevný horní margin */
-   user-select: none; /* Zabrání označení textu */  
-   box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-   z-index: 10;   
-}
-
-/* Animace pro plynulé přechody */
-@keyframes gradientAnimation {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-}
-
-.header-title::before {
-    background: rgba(0, 30, 50, 0.8);
-    border: 2px solid #00ffff;
-    border-radius: 12px;
-    text-align: center;
-    padding: 15px;
-    margin-bottom: 10px;
-    width: 100%;
-    max-width: 1000px;
-    color: #00ffff;
-    text-shadow: 0 0 10px #00ffff, 0 0 20px #0077ff;
-    box-shadow: 0 0 30px rgba(0,255,255,0.5);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientAnimation 15s ease infinite;
+    margin: var(--spacing-md) 0;
+    text-shadow: var(--glow-effect);
+    user-select: none;
     z-index: 10;
 }
 
-.audio-container { 
-    background: rgba(10, 10, 10, 0.85); 
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(100, 255, 218, 0.2); 
-    border-radius: 25px; 
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-    max-width: 1200px; 
-    width: calc(95% - 2px); /* Odečítáme border pro konzistentní šířku */
-    margin: 0 auto var(--spacing-lg) auto; 
-    padding: var(--spacing-md); 
+#trackTitle {
+    font-size: 1.9rem;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Animace gradientu */
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Hlavní kontejner audia */
+.audio-container {
+    background: rgba(27, 38, 59, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--primary-color);
+    border-radius: 20px;
+    box-shadow: var(--glow-effect);
+    max-width: 1000px;
+    width: calc(95% - 2px);
+    margin: 0 auto var(--spacing-lg) auto;
+    padding: var(--spacing-md);
     transition: var(--transition);
-    font-size: 1rem; 
-    user-select: none; 
+    font-size: 1rem;
+    user-select: none;
     display: flex;
-    flex-direction: column; 
-    align-items: center;   
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    box-sizing: border-box; /* Důležité pro správný výpočet rozměrů */
+    box-sizing: border-box;
 }
 
 .audio-container:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(0, 183, 235, 0.4);
 }
 
-#trackTitle { 
-    font-size: 1.8rem; 
-    margin-bottom: var(--spacing-md);
-    color: var(--secondary-color); 
-    -webkit-background-clip: unset; 
-    background: none; 
-    text-shadow: 0 0 10px var(--secondary-color);
-}
-
+/* Časové ovládání */
 .time-controls {
-    margin-top: 0; 
-    gap: var(--spacing-sm); 
-    padding: var(--spacing-sm) 0; 
     display: flex;
     align-items: center;
-    justify-content: center; 
-    width: 100%; 
+    justify-content: center;
+    gap: var(--spacing-sm);
+    width: 100%;
     margin-bottom: var(--spacing-md);
-    box-sizing: border-box;
 }
 
 .time-controls .time-part, 
 .time-controls #currentTime .time-part, 
-.time-controls #duration .time-part {  
+.time-controls #duration .time-part {
     font-family: 'Courier New', monospace;
-    font-size: 1.5rem; 
-    user-select: none; 
-    background: linear-gradient(45deg, #64ffda, #ff2d55, #2196F3, #ff9800); 
-    background-size: 400% 400%; 
-    animation: gradientAnimation 20s ease infinite;
+    font-size: 1.6rem;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background-size: 200% 200%;
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent; 
+    color: transparent;
+    animation: gradientAnimation 10s ease infinite;
 }
 
 .time-controls .time-separator {
-    font-family: Copperplate, 'Copperplate Gothic Light', 'Orbitron', fantasy;
-    font-size: 1.5rem; 
-    animation: blink 1.2s step-start infinite, textGradientAnimation 20s ease infinite;
-    user-select: none; 
-    background: linear-gradient(45deg, #64ffda, #ff2d55, #2196F3, #ff9800);
-    background-size: 400% 400%;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6rem;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background-size: 200% 200%;
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent; 
+    color: transparent;
+    animation: gradientAnimation 10s ease infinite;
 }
 
+/* Posuvník pro pokrok skladby */
 #progress-bar {
     -webkit-appearance: none;
     appearance: none;
-    width: 100%; 
-    max-width: 400px; 
-    height: 12px; 
-    background: rgba(255, 255, 255, 0.15); 
-    border-radius: 6px; 
+    width: 100%;
+    max-width: 450px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
     outline: none;
     margin: 0 var(--spacing-sm);
-    box-sizing: border-box;
+    box-shadow: var(--glow-effect);
 }
+
 #progress-bar::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px; 
-    height: 18px;
-    border-radius: 50%;
-    background: var(--secondary-color); 
-    cursor: pointer;
-    border: 2px solid var(--background-dark); 
-    box-shadow: 0 0 5px var(--secondary-color);
-}
-#progress-bar::-moz-range-thumb { 
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--secondary-color);
     cursor: pointer;
     border: 2px solid var(--background-dark);
-    box-shadow: 0 0 5px var(--secondary-color);
+    box-shadow: var(--glow-effect);
 }
 
+#progress-bar::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    cursor: pointer;
+    border: 2px solid var(--background-dark);
+    box-shadow: var(--glow-effect);
+}
+
+/* Ovládací tlačítka */
 .controls {
     display: flex;
-    gap: var(--spacing-sm); 
+    gap: var(--spacing-sm);
     justify-content: center;
     margin-bottom: var(--spacing-md);
     flex-wrap: wrap;
     width: 100%;
-    box-sizing: border-box;
 }
 
 button, .control-button {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(100, 255, 218, 0.3); 
-    border-radius: 25px; 
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--primary-color);
+    border-radius: 30px;
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 1.1rem; 
-    font-weight: 500; 
-    padding: 8px 15px; 
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 10px 20px;
     transition: var(--transition);
-    display: inline-flex; 
+    display: inline-flex;
     align-items: center;
-    justify-content: center; 
-    user-select: none; 
-    min-width: 40px;
-    box-sizing: border-box;
+    justify-content: center;
+    user-select: none;
+    min-width: 50px;
+    box-shadow: var(--glow-effect);
 }
 
 button:hover, .control-button:hover {
     background: var(--primary-color);
-    color: var(--background-dark); 
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+    color: var(--background-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 183, 235, 0.5);
 }
+
 button:active, .control-button:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
 }
 
 #play-button.active, #pause-button.active, #loop-button.active, #shuffle-button.active, #fullscreen-toggle.active, #timer-button.active, #favorites-button.active {
     background-color: var(--primary-color);
     color: var(--background-dark);
-    box-shadow: 0 0 10px var(--primary-color);
+    box-shadow: 0 0 12px var(--primary-color);
 }
-#pause-button.active { background-color: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); }
-#loop-button.active { background-color: var(--secondary-color); color: var(--background-dark); box-shadow: 0 0 10px var(--secondary-color); }
 
+#pause-button.active {
+    background-color: var(--accent-color);
+    box-shadow: 0 0 12px var(--accent-color);
+}
+
+#loop-button.active {
+    background-color: var(--secondary-color);
+    color: var(--background-dark);
+    box-shadow: 0 0 12px var(--secondary-color);
+}
+
+/* Ovládání hlasitosti */
 .volume-controls {
     display: flex;
-    align-items: center; 
-    justify-content: center; 
-    gap: var(--spacing-sm); 
+    align-items: center;
+    gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
     width: 100%;
-    box-sizing: border-box;
+    justify-content: center;
 }
 
 #volume-slider {
-    -webkit-appearance: none; 
-    width: 150px; 
-    height: 8px; 
-    background: rgba(255, 255, 255, 0.2); 
-    border-radius: 4px; 
+    -webkit-appearance: none;
+    width: 160px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
     outline: none;
-    box-sizing: border-box;
+    box-shadow: var(--glow-effect);
 }
+
 #volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; 
-    appearance: none; 
-    width: 16px; 
-    height: 16px; 
-    border-radius: 50%; 
-    cursor: pointer; 
-    background: var(--primary-color);
-    border: 2px solid var(--background-dark);
-}
-#volume-slider::-moz-range-thumb { 
-    width: 16px;
-    height: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    cursor: pointer;
     background: var(--primary-color);
+    cursor: pointer;
     border: 2px solid var(--background-dark);
+    box-shadow: var(--glow-effect);
+}
+
+#volume-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 2px solid var(--background-dark);
+    box-shadow: var(--glow-effect);
 }
 
 #volume-value {
-    min-width: 30px; 
+    min-width: 35px;
     text-align: center;
     font-weight: bold;
     color: var(--primary-color);
     font-family: 'Courier New', monospace;
-    font-size: 1rem; 
+    font-size: 1rem;
     background: transparent;
     padding: 0;
     border: none;
 }
 
+/* Playlist */
 .playlist {
     counter-reset: playlist-counter;
     padding: var(--spacing-sm);
     overflow-y: auto;
-    border: 1px solid rgba(100, 255, 218, 0.2);
+    border: 1px solid var(--primary-color);
     margin-top: var(--spacing-md);
     scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) var(--background-light);
+    scrollbar-color: var(--secondary-color) var(--background-light);
     background: var(--background-light);
-    border-radius: 15px; 
+    border-radius: 12px;
     width: 100%;
-    max-height: 250px;
-    box-sizing: border-box;
+    max-height: 280px;
+    box-shadow: var(--glow-effect);
 }
-.playlist.hidden { max-height: 0; opacity: 0; margin: 0; padding: 0; border: none; }
 
-/* Speciální posuvník pro playlist - menší a diskrétnější */
-.playlist::-webkit-scrollbar { 
-    width: 6px; 
+.playlist.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
 }
-.playlist::-webkit-scrollbar-track { 
-    background: var(--background-dark); 
-    border-radius: 3px;
+
+.playlist::-webkit-scrollbar {
+    width: 8px;
 }
-.playlist::-webkit-scrollbar-thumb { 
-    background-color: var(--primary-color); 
-    border-radius: 3px; 
-    transition: background-color 0.3s ease;
+
+.playlist::-webkit-scrollbar-track {
+    background: var(--background-dark);
+    border-radius: 4px;
 }
-.playlist::-webkit-scrollbar-thumb:hover {
+
+.playlist::-webkit-scrollbar-thumb {
     background-color: var(--secondary-color);
+    border-radius: 4px;
+    box-shadow: var(--glow-effect);
+}
+
+.playlist::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
 }
 
 .playlist-item {
     position: relative;
-    padding: 8px 45px; 
-    margin: 4px 0; 
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 20px; 
+    padding: 10px 50px;
+    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.9rem; 
-    min-height: auto; 
-    transition: background-color 0.2s;
-    box-sizing: border-box;
+    font-size: 1rem;
+    transition: background-color 0.3s, transform 0.2s;
 }
+
+.playlist-item:hover {
+    background: rgba(0, 183, 235, 0.3);
+    transform: scale(1.02);
+}
+
+.playlist-item.active {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)) !important;
+    color: var(--text-primary) !important;
+    font-weight: bold !important;
+    border-left: 4px solid var(--primary-color) !important;
+    box-shadow: var(--glow-effect) !important;
+}
+
 .playlist-item::before, .playlist-item::after {
     content: counter(playlist-counter);
     position: absolute;
     color: var(--text-secondary);
-    opacity: 0.7;
-    width: 24px;
+    opacity: 0.8;
+    width: 30px;
     text-align: center;
-    font-size: 0.8rem; 
-}
-.playlist-item::before { counter-increment: playlist-counter; left: 12px; }
-.playlist-item::after { right: 12px; }
-.playlist-item span { flex: 1; text-align: center; line-height: 1.3; }
-.playlist-item:hover { background: rgba(52, 152, 219, 0.2); }
-.playlist-item.active {
-    background: linear-gradient(90deg, rgba(33, 150, 243, 0.3), rgba(0, 255, 128, 0.3)) !important;
-    color: var(--text-primary) !important;
-    font-weight: bold !important;
-    border-left: 3px solid var(--primary-color) !important;
-    box-shadow: 0 0 8px rgba(33, 150, 243, 0.5) !important;
-}
-.favorite-button {
-    margin-left: var(--spacing-sm);
-    background: none; border: none; font-size: 1rem; cursor: pointer;
-    color: #ffc107; 
-    padding: 0; 
+    font-size: 0.9rem;
 }
 
+.playlist-item::before {
+    counter-increment: playlist-counter;
+    left: 15px;
+}
+
+.playlist-item::after {
+    right: 15px;
+}
+
+.favorite-button {
+    margin-left: var(--spacing-sm);
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #FFD60A;
+    padding: 0;
+}
+
+/* Klávesové zkratky */
 .keyboard-container {
     margin-top: var(--spacing-md);
     width: 100%;
-    max-width: 700px;
-    box-sizing: border-box;
+    max-width: 750px;
 }
-#popisky { display: none; } 
-#popisky h3 { text-align: center; color: var(--primary-color); margin-bottom: var(--spacing-sm); font-size: 1.1rem; }
+
+#popisky {
+    display: none;
+}
+
+#popisky h3 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.2rem;
+}
+
 .shortcut-table {
     width: 100%;
     border-collapse: collapse;
     font-family: var(--font-text);
-    font-size: 0.85rem; 
-    background-color: rgba(26, 26, 26, 0.7);
-    border-radius: 8px;
+    font-size: 0.9rem;
+    background-color: rgba(27, 38, 59, 0.8);
+    border-radius: 10px;
     overflow: hidden;
-    box-sizing: border-box;
+    box-shadow: var(--glow-effect);
 }
+
 .shortcut-table th, .shortcut-table td {
-    border: 1px solid #333 !important;
-    padding: 6px !important; 
-    text-align: center !important;
+    border: 1px solid var(--primary-color);
+    padding: 8px;
+    text-align: center;
     color: var(--text-secondary);
 }
-.shortcut-table tr:first-child td { background-color: #282828 !important; color: var(--primary-color) !important; font-weight: bold; }
-.shortcut-table tr:nth-child(even) td { background-color: rgba(30,30,30,0.7) !important; }
-.shortcut-table tr:hover td { background-color: #383838 !important; }
 
+.shortcut-table tr:first-child td {
+    background-color: var(--background-light);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.shortcut-table tr:nth-child(even) td {
+    background-color: rgba(27, 38, 59, 0.9);
+}
+
+.shortcut-table tr:hover td {
+    background-color: var(--background-light);
+}
+
+/* Čas a kalendář */
 .time-calendar-wrapper {
-  display: flex; /* Změněno z column na flex pro zobrazení vedle sebe */
-  flex-direction: row; /* Explicitně nastaveno, i když je to default pro flex */
-  flex-wrap: wrap; /* Povolí zalamování na menších obrazovkách */
-  gap: var(--spacing-md); /* Mezera mezi hodinami a kalendářem */
-  align-items: center;
-  justify-content: center; /* Vycentrování na stránce */
-  font-size: 1.2rem; 
-  margin-top: var(--spacing-md);
-  width: 100%; /* Aby zabralo dostupnou šířku a mohlo se centrovat */
-  box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-top: var(--spacing-md);
+    width: 100%;
+    background: rgba(27, 38, 59, 0.8);
+    border-radius: 10px;
+    padding: var(--spacing-sm);
+    box-shadow: var(--glow-effect);
 }
-.time, .calendar { 
-    text-align: center;
-    flex-shrink: 0; /* Zabrání smrštění, pokud by bylo málo místa */
-}
-.time { display: flex; align-items: center; gap: 0.2em; /* Menší mezery mezi částmi času */ }
-.time .num { font-size: 1.8rem; } 
-.time .text { font-size: 0.8rem; margin-left: 0.1em; } 
-.time .colon { font-size: 1.8rem; } 
-.date { font-size: 1rem; color: var(--secondary-color); }
 
+.time {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+}
+
+.time .num {
+    font-size: 2rem;
+}
+
+.time .text {
+    font-size: 0.9rem;
+    margin-left: 0.2em;
+}
+
+.time .colon {
+    font-size: 2rem;
+}
+
+.date {
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+}
+
+/* Časovač */
 .timer-container {
-    display: none; flex-direction: column; align-items: center;
-    margin: var(--spacing-md) 0; padding: var(--spacing-sm);
-    background-color: rgba(0,0,0,0.3); border-radius: 8px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md);
+    background-color: rgba(27, 38, 59, 0.9);
+    border-radius: 10px;
     border: 1px solid var(--accent-color);
-    width: 100%; max-width: 400px;
-    box-sizing: border-box;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: var(--glow-effect);
 }
-.timer-display { font-size: 1.2em; color: var(--accent-color); background-color: rgba(0,0,0,0.4); padding: 5px 10px; border-radius: 4px; margin-bottom: var(--spacing-sm); }
-.timer-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--spacing-sm); }
-.timer-controls button { padding: 6px 10px; font-size: 0.9rem; background-color: rgba(255,255,255,0.08); border: 1px solid var(--accent-color); }
-.timer-controls button:hover { background-color: var(--accent-color); color: var(--background-dark); }
 
-.favorites-menu {
-    display: none; position: absolute; width: 280px; 
-    max-height: 300px; 
-    overflow-y: auto; background-color: var(--background-dark);
-    border: 1px solid var(--accent-color); border-radius: 8px;
-    padding: var(--spacing-sm); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    z-index: 1000; right: 10px; top: 70px; 
+.timer-display {
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 6px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.timer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.timer-controls button {
+    padding: 8px 12px;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--accent-color);
+    border-radius: 20px;
     color: var(--text-primary);
-    box-sizing: border-box;
 }
-.favorites-menu h3 { text-align: center; color: var(--accent-color); margin-top: 0; padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--accent-color); font-size: 1.1rem; }
-.favorites-menu-item { display: flex; justify-content: space-between; align-items: center; padding: 6px; cursor: pointer; border-radius: 4px; transition: background-color 0.2s; margin-bottom: 3px; font-size: 0.9rem; }
-.favorites-menu-item:hover { background-color: rgba(255, 45, 85, 0.2); }
-.favorites-menu-item.active { background-color: rgba(255, 45, 85, 0.4); }
-.favorite-remove { font-size: 1rem; }
 
+.timer-controls button:hover {
+    background-color: var(--accent-color);
+    color: var(--background-dark);
+}
+
+/* Menu oblíbených */
+.favorites-menu {
+    display: none;
+    position: absolute;
+    width: 300px;
+    max-height: 320px;
+    overflow-y: auto;
+    background-color: var(--background-dark);
+    border: 1px solid var(--accent-color);
+    border-radius: 10px;
+    padding: var(--spacing-md);
+    box-shadow: var(--glow-effect);
+    z-index: 1000;
+    right: 15px;
+    top: 80px;
+    color: var(--text-primary);
+}
+
+.favorites-menu h3 {
+    text-align: center;
+    color: var(--accent-color);
+    margin-top: 0;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--accent-color);
+    font-size: 1.2rem;
+}
+
+.favorites-menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+
+.favorites-menu-item:hover {
+    background-color: rgba(255, 7, 58, 0.3);
+}
+
+.favorites-menu-item.active {
+    background-color: rgba(255, 7, 58, 0.5);
+}
+
+.favorite-remove {
+    font-size: 1.1rem;
+}
+
+/* Patička */
 footer {
-    margin-top: var(--spacing-lg); 
+    margin-top: var(--spacing-lg);
     color: var(--text-secondary);
     text-align: center;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: rgba(0,0,0,0.7);
-    box-shadow: 0 -2px 8px rgba(255, 170, 0, 0.3);
-    font-size: 0.85rem; 
-    border-radius: 8px 8px 0 0; 
-    width: auto; 
-    display: inline-block; 
-    max-width: 90%;
-    box-sizing: border-box;
+    padding: var(--spacing-md);
+    background-color: rgba(27, 38, 59, 0.9);
+    box-shadow: 0 -4px 10px rgba(0, 183, 235, 0.3);
+    font-size: 0.9rem;
+    border-radius: 10px 10px 0 0;
+    width: auto;
+    max-width: 95%;
 }
-footer a { color: #FFD700; text-decoration: none; transition: color 0.3s; }
-footer a:hover { color: #1E90FF; text-decoration: underline; }
 
-/* Media Queries - OPRAVENÉ BEZ POSUNU */
+footer a {
+    color: #FFD60A;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* Zpráva o načítání */
+.error-image-placeholder {
+    width: 100%;
+    height: 60px;
+    background-color: rgba(27, 38, 59, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: var(--spacing-md);
+    border-radius: 10px;
+    box-shadow: var(--glow-effect);
+}
+
+.loading-message {
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-family: var(--font-main);
+    text-shadow: var(--glow-effect);
+}
+
+/* Resetovací tlačítko */
+.reset-sync-button {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-primary);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--glow-effect);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: var(--spacing-md);
+}
+
+.reset-sync-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 183, 235, 0.5);
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
+.reset-sync-button:active {
+    transform: scale(0.95);
+}
+
+.reset-sync-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.reset-sync-button.loading .reset-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Media Queries pro responzivitu */
 @media (max-width: 768px) {
     .header-title {
-        font-size: 2rem;
-        margin-top: 20px; /* Zachováváme konzistentní margin */
-        margin-bottom: 30px; /* Místo 40px */
+        font-size: 2.2rem;
+        margin: var(--spacing-md) 0;
     }
-    
-    #trackTitle { 
-        font-size: 1.5rem; 
+
+    #trackTitle {
+        font-size: 1.6rem;
     }
-    
-    .audio-container { 
-        padding: var(--spacing-sm); 
-        border-radius: 20px;
-        width: calc(95% - 2px); /* Konzistentní šířka */
-    }
-    
-    .time-controls { 
-        flex-direction: row; 
-        gap: 5px; 
-    }
-    
-    #progress-bar { 
-        height: 10px; 
-        max-width: 30%; 
-    }
-    #progress-bar::-webkit-slider-thumb { width: 16px; height: 16px; }
-    #progress-bar::-moz-range-thumb { width: 16px; height: 16px; }
-    
-    .controls { gap: 5px; }
-    
-    button, .control-button { 
-        font-size: 0.9rem; 
-        padding: 6px 10px; 
-        min-width: 36px; 
-    }
-    
-    #volume-slider { 
-        width: 120px; 
-        height: 6px; 
-    }
-    #volume-slider::-webkit-slider-thumb { width: 14px; height: 14px; }
-    #volume-slider::-moz-range-thumb { width: 14px; height: 14px; }
-    #volume-value { font-size: 0.9rem; }
-    
-    .playlist-item { 
-        font-size: 0.85rem; 
-        padding: 6px 35px; 
+
+    .audio-container {
+        padding: var(--spacing-sm);
         border-radius: 15px;
+        width: calc(95% - 2px);
     }
-    .playlist-item::before, .playlist-item::after { 
-        font-size: 0.75rem; 
-        left: 10px; 
-        right: 10px; 
+
+    .time-controls {
+        flex-direction: row;
+        gap: 6px;
     }
-    .favorite-button { font-size: 0.9rem; }
-    
-    .time-calendar-wrapper { 
-        font-size: 1rem; 
-        flex-direction: row; 
+
+    #progress-bar {
+        height: 8px;
+        max-width: 350px;
     }
-    .time .num { font-size: 1.5rem; }
-    .time .text { font-size: 0.7rem; }
-    .time .colon { font-size: 1.5rem; }
-    .date { font-size: 0.9rem; }
-    
-    .favorites-menu { width: 240px; top: 60px; }
-    .shortcut-table { font-size: 0.75rem; }
-    .shortcut-table th, .shortcut-table td { padding: 4px !important; }
+
+    #progress-bar::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+    }
+
+    #progress-bar::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+    }
+
+    button, .control-button {
+        font-size: 0.95rem;
+        padding: 8px 12px;
+        min-width: 40px;
+    }
+
+    #volume-slider {
+        width: 130px;
+        height: 6px;
+    }
+
+    #volume-slider::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
+    }
+
+    #volume-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+    }
+
+    #volume-value {
+        font-size: 0.95rem;
+    }
+
+    .playlist-item {
+        font-size: 0.9rem;
+        padding: 8px 40px;
+        border-radius: 12px;
+    }
+
+    .playlist-item::before, .playlist-item::after {
+        font-size: 0.8rem;
+        left: 12px;
+        right: 12px;
+    }
+
+    .favorite-button {
+        font-size: 0.95rem;
+    }
+
+    .time-calendar-wrapper {
+        font-size: 1.1rem;
+        flex-direction: row;
+    }
+
+    .time .num {
+        font-size: 1.6rem;
+    }
+
+    .time .text {
+        font-size: 0.8rem;
+    }
+
+    .time .colon {
+        font-size: 1.6rem;
+    }
+
+    .date {
+        font-size: 1rem;
+    }
+
+    .favorites-menu {
+        width: 260px;
+        top: 70px;
+    }
+
+    .shortcut-table {
+        font-size: 0.8rem;
+    }
+
+    .shortcut-table th, .shortcut-table td {
+        padding: 6px;
+    }
 }
 
 @media (max-width: 480px) {
-    .player-content-wrapper { 
-        padding: var(--spacing-sm); 
+    .player-content-wrapper {
+        padding: var(--spacing-sm);
     }
-    
-    .header-title { 
-        font-size: 1.5rem; /* Místo 0.8rem - příliš malé */
-        margin-bottom: var(--spacing-md);
-        margin-top: 10px; /* Místo -80px - způsobovalo posun */
+
+    .header-title {
+        font-size: 1.8rem;
+        margin: var(--spacing-sm) 0;
     }
-    
-    #trackTitle { 
-        font-size: 1.2rem; /* Místo 0.8rem */
+
+    #trackTitle {
+        font-size: 1.3rem;
     }
-    
-    .audio-container { 
-        width: calc(95% - 2px); /* Konzistentní */
-        border-radius: 15px; 
+
+    .audio-container {
+        width: calc(95% - 2px);
+        border-radius: 12px;
     }
-    
+
     .time-controls .time-part, 
-    .time-controls .time-separator { 
-        font-size: 1.2rem; 
+    .time-controls .time-separator {
+        font-size: 1.3rem;
     }
-    
-    #progress-bar { 
-        height: 8px; 
+
+    #progress-bar {
+        height: 7px;
     }
-    #progress-bar::-webkit-slider-thumb { width: 14px; height: 14px; }
-    #progress-bar::-moz-range-thumb { width: 14px; height: 14px; }
-    
-    button, .control-button { 
-        font-size: 0.8rem; 
-        padding: 5px 8px; 
-        border-radius: 20px; 
+
+    #progress-bar::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
     }
-    
-    .playlist-item { 
-        font-size: 0.8rem; 
-        padding: 5px 30px; 
+
+    #progress-bar::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
     }
-    .playlist-item::before, .playlist-item::after { 
-        font-size: 0.7rem; 
+
+    button, .control-button {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        border-radius: 15px;
     }
-    
-    .keyboard-container { 
-        margin-top: var(--spacing-sm); 
+
+    .playlist-item {
+        font-size: 0.85rem;
+        padding: 6px 35px;
     }
-    #popisky h3 { 
-        font-size: 1rem; 
+
+    .playlist-item::before, .playlist-item::after {
+        font-size: 0.75rem;
     }
-    .shortcut-table { 
-        font-size: 0.7rem; 
+
+    .keyboard-container {
+        margin-top: var(--spacing-sm);
     }
-    
-    .time .num, .time .colon { 
-        font-size: 1.3rem; 
+
+    #popisky h3 {
+        font-size: 1.1rem;
     }
-    
-    .favorites-menu { 
-        width: 200px; 
+
+    .shortcut-table {
+        font-size: 0.75rem;
     }
-    
-    footer { 
-        font-size: 0.8rem; 
-        padding: var(--spacing-sm); 
+
+    .time .num, .time .colon {
+        font-size: 1.4rem;
+    }
+
+    .favorites-menu {
+        width: 220px;
+    }
+
+    footer {
+        font-size: 0.85rem;
+        padding: var(--spacing-sm);
     }
 }
 
-/* --- Základní kontejner --- */
-.hlavni-kontejner-pro-cas-a-casovac {
-  display: flex; /* Zapneme Flexbox pro hlavní rozložení */
-  flex-wrap: wrap; /* Pokud se nevejdou, zalamuj pod sebe (volitelné) */
-  justify-content: space-around; /* Rozmístění s mezerami kolem */
-  align-items: flex-start; /* Zarovnání na začátek vertikálně */
-  max-width: 100%;
-  height: 100%;   
-      
-  font-size: 15px; /* Základní velikost písma pro vše uvnitř */
-  margin-top: 10px;   
-   
-   
-  color: #e0e0e0; /* Světlejší text na tmavém pozadí */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Moderní font */
-  border-radius: 8px;
-}
-
-/* --- Kontejner pro hodiny a kalendář --- */
-.time-calendar-wrapper {
-  display: flex; /* Zapneme Flexbox i zde, aby hodiny a kalendář byly vedle sebe */
-  align-items: center; /* Vertikální zarovnání hodin a kalendáře na střed */
-   
-  
-  border: 1px dashed #555; /* Jen pro vizualizaci, můžeš smazat */
-  border-radius: 6px;
-  background-color: #383838;
-}
-
-/* Globální deaktivace označování textu a dalších prvků */
+/* Globální deaktivace označování textu */
 * {
-  -webkit-user-select: none; /* Pro Safari a starší Chrome/Opera/Edge */
-  -moz-user-select: none;    /* Pro Firefox */
-  -ms-user-select: none;     /* Pro Internet Explorer a starší Edge */
-  user-select: none;         /* Standardní syntaxe, měla by fungovat ve většině moderních prohlížečů */
-}
-
-
-/* style.css */
-
-/* Tento kontejner bude držet zprávu */
-.error-image-placeholder {
-    width: 100%; /* Zajistí, že zabere celou šířku */
-    height: 50px; /* Pevná výška kontejneru */
-    background-color: #333; /* Tmavé pozadí, když není obrázek */
-    display: flex; /* Použijeme flexbox pro snadné centrování a posun */
-    flex-direction: column; /* Položky pod sebou */
-    align-items: center; /* Horizontální centrování */
-    justify-content: center; /* Vertikální centrování (výchozí) */
-    overflow: hidden; /* Jen pro jistotu */
-    position: relative; /* Pro případné absolutní pozicování, pokud by bylo potřeba */
-    margin-top: 12px;
-}
-
-/* Styly pro samotný text zprávy */
-.loading-message {
-    text-align: center;
-    color: #eee; /* Světlá barva textu */
-    font-size: 1.8em; /* Větší text */
-    font-family: 'Arial', sans-serif; /* Můžeš si zvolit jiný font */
-    white-space: pre-wrap; /* Pro zalomení textu, pokud je dlouhý */
-    
-   
-}
- /* Stylování pro reset tlačítko */
-        .reset-sync-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin: 10px;
-        }
-        
-        .reset-sync-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-        }
-        
-        .reset-sync-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .reset-sync-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Animace rotace pro ikonu */
-        .reset-sync-button.loading .reset-icon {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    }
