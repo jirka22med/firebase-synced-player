@@ -25,8 +25,8 @@ body, html {
     padding: 0;
     height: 100vh;
     width: 100vw;
-    background-color: var(--background-dark);
-    color: var(--text-primary);
+   /* background-color: var(--background-dark);*/
+    color: var(--text-primary); 
     font-family: var(--font-main);
     text-align: center;
     font-weight: 500;
@@ -51,8 +51,13 @@ body, html {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.6;
-    filter: blur(2px);
+    opacity: 1.0;
+    filter: blur(0px);
+    /*toto dektivuje označování obrázku */
+    user-select: none; /* Deaktivuje označování pro všechny prohlížeče */
+    -webkit-user-select: none; /* Pro Safari a Chrome */
+    -moz-user-select: none; /* Pro Firefox */
+    -ms-user-select: none; /* Pro starší verze Internet Exploreru */
 }
 
 /* Hlavní wrapper přehrávače */
@@ -368,12 +373,12 @@ button:active, .control-button:active {
 
 .playlist-item:hover {
     background: rgba(0, 183, 235, 0.3);
-    transform: scale(1.02);
+   /* transform: scale(1.02);*/
 }
 
 .playlist-item.active {
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)) !important;
-    color: var(--text-primary) !important;
+    color: #000000 !important;
     font-weight: bold !important;
     border-left: 4px solid var(--primary-color) !important;
     box-shadow: var(--glow-effect) !important;
@@ -841,7 +846,10 @@ footer a:hover {
         padding: 6px 10px;
         border-radius: 15px;
     }
-
+    .playlist{
+      width: 96%;  
+        
+    }
     .playlist-item {
         font-size: 0.85rem;
         padding: 6px 35px;
@@ -883,4 +891,4 @@ footer a:hover {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    }
+}
