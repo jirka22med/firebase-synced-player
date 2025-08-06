@@ -25,7 +25,7 @@ body, html {
     padding: 0;
     height: 100vh;
     width: 100vw;
-   /* background-color: var(--background-dark);*/
+   background-color: var(--background-dark); 
     color: var(--text-primary); 
     font-family: var(--font-main);
     text-align: center;
@@ -37,7 +37,7 @@ body, html {
     left: 0;
     overflow: hidden;
 }
-
+ 
 /* Pozadí s obrázkem */
 .background-image-container {
     position: fixed;
@@ -52,7 +52,7 @@ body, html {
     height: 100%;
     object-fit: cover;
     opacity: 1.0;
-    filter: blur(0px);
+     
     /*toto dektivuje označování obrázku */
     user-select: none; /* Deaktivuje označování pro všechny prohlížeče */
     -webkit-user-select: none; /* Pro Safari a Chrome */
@@ -81,7 +81,7 @@ body, html {
 /* Nadpis a název skladby */
 .header-title, #trackTitle {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2.8rem;
+    font-size: 2.0rem;
     font-weight: 700;
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
     background-size: 300% 300%;
@@ -93,6 +93,7 @@ body, html {
     text-shadow: var(--glow-effect);
     user-select: none;
     z-index: 10;
+    margin-top: -5px;
 }
 
 #trackTitle {
@@ -891,4 +892,152 @@ footer a:hover {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+
+.sync-status-container {
+    padding: 1rem;
+    border: 2px solid #ffcc00; /* Ohraničení jako varovný štít */
+    border-radius: 8px;        /* Jemné zakulacení rohů */
+    background-color: #1a1a1a; /* Výplň v tmavém stylu můstku */
+    max-width: 400px;
+    margin: 1rem auto;
+    box-shadow: 0 0 10px #ffcc00aa; /* Jemné glow efekty */
+}
+
+.sync-message {
+    color: #00ffff; /* Barva textu – klidně změň na jinou */
+    font-size: 1.2rem;
+    font-family: "Consolas", "Courier New", monospace;
+    text-align: center;
+    font-weight: bold;
+}
+
+
+.time-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: #111827;
+  border: 2px solid #00ffff;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  max-width: 40%;
+  margin: 1rem auto;
+  box-shadow: 0 0 10px #00ffff88;
+    margin-top: -10px;
+}
+
+#currentTime,
+#duration {
+  color: #00ff99;
+  font-family: "Consolas", "Courier New", monospace;
+  font-weight: bold;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.time-part {
+  min-width: 1.5ch;
+  display: inline-block;
+  text-align: center;
+}
+
+.time-separator {
+  color: #ffcc00;
+  padding: 0 0.2rem;
+}
+
+/* Styl jen pro progress bar */
+#progress-bar {
+  position: relative;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(
+    270deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #7fff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #4b0082,
+    #8f00ff,
+    #ff1493,
+    #ff0000
+  );
+  background-size: 300% 100%;
+  animation: warpFlow 15s ease-in-out infinite alternate;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Warpová animace */
+@keyframes warpFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Kolejnice – neviditelná, protože máme vlastní pozadí */
+#progress-bar::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 10px;
+  border-radius: 5px;
+}
+#progress-bar::-moz-range-track {
+  background: transparent;
+  height: 10px;
+  border-radius: 5px;
+}
+
+/* Thumb – ovládací kroužek */
+#progress-bar::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #00ffff;
+  margin-top: -3px;
+  transition: transform 0.2s;
+}
+#progress-bar::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+#progress-bar::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #00ffff;
+  cursor: pointer;
+}
+.controls{
+  padding: 0.5rem;
+    border: 2px solid #ffcc00; /* Ohraničení jako varovný štít */
+    border-radius: 8px;        /* Jemné zakulacení rohů */
+    background-color: #1a1a1a; /* Výplň v tmavém stylu můstku */
+    max-width: 1680px;
+    margin: 1rem auto;
+    box-shadow: 0 0 10px #ffcc00aa; /* Jemné glow efekty */
+    margin-top: -10px;
+}  
+ .volume-controls{
+  padding: 0.5rem;
+    border: 2px solid #ffcc00;  
+    border-radius: 8px;         
+    background-color: #1a1a1a;  
+    max-width: 225px;
+    margin: 1rem auto;
+    box-shadow: 0 0 10px #ffcc00aa; 
+     margin-top: -7px;
+    
 }
